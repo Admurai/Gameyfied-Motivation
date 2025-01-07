@@ -36,130 +36,81 @@ class good_habit:
     
     def uncomplete(self):
         self.completed = False
-
-
 class GUI:
     def __init__(self):
         self.point_count = 0
         self.projects = []
         self.bad_habits = []
         self.good_habits = []
-        self.tabs = QTabWidget()
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.tabs)
-        self.setLayout(self.layout)
-    def setLayout(self, layout):
-        self.layout = layout
 
-    def add_project(self, job, points):
+        self.show_all_Items
+        
+    def add_projects (self, job, points):
         self.projects.append(project(job, points))
-    
-    def add_bad_habit(self, name, points):
+    def add_bad_habits (self, name, points):
         self.bad_habits.append(bad_habit(name, points))
-    
-    def add_good_habit(self, name, points):
+    def add_good_habits (self, name, points):
         self.good_habits.append(good_habit(name, points))
-    
-    def complete_project(self, index):
-        self.projects[index].complete()
-    
-    def uncomplete_project(self, index):
-        self.projects[index].uncomplete()
-    
-    def complete_bad_habit(self, index):
-        self.bad_habits[index].complete()
-    
-    def uncomplete_bad_habit(self, index):
-        self.bad_habits[index].uncomplete()
-    
-    def complete_good_habit(self, index):
-        self.good_habits[index].complete()
-    
-    def uncomplete_good_habit(self, index):
-        self.good_habits[index].uncomplete()
-    
-    def get_projects(self):
-        return self.projects
-    
-    def get_bad_habits(self):
-        return self.bad_habits
-    
-    def get_good_habits(self):
-        return self.good_habits
-    
-    def create_main_tab(self):
-        main_tab = QWidget()
-        layout = QVBoxLayout(main_tab)
 
-        # Display existing good habits
-        layout.addWidget(QLabel("Good Habits"))
-        for habit in self.good_habits:
-            checkbox = QCheckBox(f"{habit.name} ({habit.points} points)")
-            checkbox.stateChanged.connect(lambda state, h=habit: self.update_points(h, state))
-            layout.addWidget(checkbox)
+    def show_all_Items(self):
+        self.show_projects()
+        self.show_bad_habits()
+        self.show_good_habits()
 
-        # Display existing bad habits
-        layout.addWidget(QLabel("Bad Habits"))
-        for habit in self.bad_habits:
-            checkbox = QCheckBox(f"{habit.name} ({habit.points} points)")
-            checkbox.stateChanged.connect(lambda state, h=habit: self.update_points(h, state))
-            layout.addWidget(checkbox)
-
-        # Display existing projects
-        layout.addWidget(QLabel("Projects"))
-        for proj in self.projects:
-            checkbox = QCheckBox(f"{proj.name} ({proj.points} points)")
-            checkbox.stateChanged.connect(lambda state, p=proj: self.update_points(p, state))
-            layout.addWidget(checkbox)
-
-        # Input fields for adding new items
-        input_layout = QHBoxLayout()
-        self.name_input = QLineEdit()
-        self.name_input.setPlaceholderText("Name")
-        self.points_input = QLineEdit()
-        self.points_input.setPlaceholderText("Points")
-        self.type_selector = QComboBox()
-        self.type_selector.addItems(["Good Habit", "Bad Habit", "Project"])
-        add_button = QPushButton("Add")
-        add_button.clicked.connect(self.add_new_item)
-
-        input_layout.addWidget(self.name_input)
-        input_layout.addWidget(self.points_input)
-        input_layout.addWidget(self.type_selector)
-        input_layout.addWidget(add_button)
-
-        layout.addLayout(input_layout)
-        main_tab.setLayout(layout)
-        self.tabs.addTab(main_tab, "Main")
-
-    def show(self):
-        self.tabs.show()
+    def show_projects(self):
+        for project in self.projects:
+            print(f"{project.job} - {project.points} - {project.completed}")
     
+    def show_bad_habits(self):
+        for bad_habit in self.bad_habits:
+            print(f"{bad_habit.name} - {bad_habit.points} - {bad_habit.completed}")
+    
+    def show_good_habits(self):
+        for good_habit in self.good_habits:
+            print(f"{good_habit.name} - {good_habit.points} - {good_habit.completed}")
 
-    def update_points(self, item, state):
-        if state == Qt.Checked:
-            self.point_count += item.points
+    def change(self):
+        option = input("Would u like to complete any of these ? (y/n) ")
+        if option == "y":
+            self.complete()
         else:
-            self.point_count -= item.points
-        print(f"Current Points: {self.point_count}")
+            print("Ok")
 
-    def add_new_item(self):
-        name = self.name_input.text()
-        points = int(self.points_input.text())
-        item_type = self.type_selector.currentText()
-
-        if item_type == "Good Habit":
-            self.add_good_habit(name, points)
-        elif item_type == "Bad Habit":
-            self.add_bad_habit(name, points)
-        elif item_type == "Project":
-            self.add_project(name, points)
-
-        self.create_main_tab()  # Refresh the tab to show the new item
-
-if __name__ == "__main__":
-    app = QApplication([])
-    gui = GUI()
-    gui.create_main_tab()
-    gui.show()
+    def complete(self):
+        option = input("Which Type would u like to complete ? ")
+        
+        if option == "project":
+            self.complete_project()
+        elif option == "bad_habit":
+            self.complete_bad_habit()
+        elif option == "good_habit":
+            self.complete_good_habit()
+        else:
+            print("Invalid Option")
     
+    def complete_project(self):
+        iteration = 1
+        for project in self.projects:
+            print(f"{iteration}:  {project.job} - {project.points} - {project.completed}")
+            iteration+=1
+        option = input("Which Project would u like to complete ?")
+        self.projects[int(option)-1].complete()
+        print("Project Completed")
+    
+    def complete_bad_habit(self):
+        iteration = 1
+        for bad_habit in self.bad_habits:
+            print(f"{iteration}:  {bad_habit.name} - {bad_habit.points} - {bad_habit.completed}")
+            iteration+=1
+        option = input("Which Bad Habit would u like to complete ?")
+        self.bad_habits[int(option)-1].complete()
+        print("Bad Habit failed")
+    
+    def complete_good_habit(self):
+        iteration = 1
+        for good_habit in self.good_habits:
+            print(f"{iteration}:  {good_habit.name} - {good_habit.points} - {good_habit.completed}")
+            iteration+=1
+        option = input("Which Good Habit would u like to complete ?")
+        self.good_habits[int(option)-1].complete()
+        print("Good Habit Completed")
