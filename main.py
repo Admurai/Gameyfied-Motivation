@@ -159,6 +159,8 @@ class GUI:
             print(f"{iteration}:  {good_habit.name} - {good_habit.points} - {good_habit.completed}")
             iteration+=1
         option = input("Which Good Habit would u like to complete ?")
+        if self.good_habits[int(option)-1].completed == True:
+            print("This habit is already completed")
         self.point_count += self.good_habits[int(option)-1].points
         self.good_habits[int(option)-1].complete()
         print("Good Habit Completed")
@@ -276,16 +278,16 @@ class GUI:
         file1.write(f"{self.point_count}\n")
         for project in self.projects:
             file1.write(f"Projects:")
-            file1.write(f"{project.job} - {project.points} - {project.completed}\n")
+            file1.write(f"{project.job}-{project.points}-{project.completed}\n")
         for bad_habit in self.bad_habits:
             file1.write(f"Bad Habits:")
-            file1.write(f"{bad_habit.name} - {bad_habit.points} - {bad_habit.completed}\n")
+            file1.write(f"{bad_habit.name}-{bad_habit.points}-{bad_habit.completed}\n")
         for good_habit in self.good_habits:
             file1.write(f"Good Habits:")
-            file1.write(f"{good_habit.name} - {good_habit.points} - {good_habit.completed}\n")
+            file1.write(f"{good_habit.name}-{good_habit.points}-{good_habit.completed}\n")
         for reward in self.rewards:
             file1.write(f"Rewards:")
-            file1.write(f"{reward.name} - {reward.price}\n") 
+            file1.write(f"{reward.name}-{reward.price}\n") 
         file1.close()
         print("Data Saved") 
     
@@ -297,42 +299,52 @@ class GUI:
 
             mode = None
             for line in lines[1:]:
-                line = line.strip()
-                if line.startswith("Projects:"):
-                    mode = "project"    
-                    line = line.replace("Projects:", "")             
-                elif line.startswith("Bad Habits:"):
-                    mode = "bad_habit"   
-                    line = line.replace("Bad Habits:", "")              
-                elif line.startswith("Good Habits:"):
-                    mode = "good_habit"     
-                    line = line.replace("Good Habits:", "")              
-                elif line.startswith("Rewards:"):
-                    mode = "reward"
-                    line = line.replace("Rewards:", "")
+                    line = line.strip()
+                    if not line :
+                        continue
                     
-                if mode == "project":
-                    job, points, completed = line.split(" - ")
-                    proj = project(job, int(points))
-                    if completed == "True":
-                        proj.complete()
-                    self.projects.append(proj)                   
-                elif mode == "bad_habit":
-                    name, points, completed = line.split(" - ")
-                    bh = bad_habit(name, int(points))
-                    if completed == "True":
-                        bh.complete()
-                    self.bad_habits.append(bh)
-                elif mode == "good_habit":
-                    name, points, completed = line.split(" - ")
-                    gh = good_habit(name, int(points))                   
-                    if completed == "True":
-                        gh.complete()
-                    self.good_habits.append(gh)
-                elif mode == "reward":
-                    name, price = line.split(" - ")
-                    self.rewards.append(rewards(name, int(price)))
-        file1.close()
+                    if line.startswith("Projects:"):
+                        mode = "project" 
+                        
+                        line = line.replace("Projects:", "").strip()        
+                        print(line)   
+                    elif line.startswith("Bad Habits:"):
+                        mode = "bad_habit"   
+                        
+                        line = line.replace("Bad Habits:", "").strip()    
+                        print(line)           
+                    elif line.startswith("Good Habits:"):
+                        mode = "good_habit" 
+                        
+                        line = line.replace("Good Habits:", "").strip() 
+                        print(line)           
+                    elif line.startswith("Rewards:"):
+                        mode = "reward"
+                        print(line)
+                        line = line.replace("Rewards:", "").strip() 
+                        
+                    if mode == "project":
+                        job, points, completed = line.split("-") 
+                        proj = project(job, int(points))
+                        if completed == "True":
+                            proj.complete()
+                        self.projects.append(proj)                   
+                    elif mode == "bad_habit":
+                        name, points, completed = line.split("-")
+                        bh = bad_habit(name, int(points))
+                        if completed == "True":
+                            bh.complete()
+                        self.bad_habits.append(bh)
+                    elif mode == "good_habit":
+                        name, points, completed = line.split("-")
+                        gh = good_habit(name, int(points))                   
+                        if completed == "True":
+                            gh.complete()
+                        self.good_habits.append(gh)
+                    elif mode == "reward":
+                        name, price = line.split("-")
+                        self.rewards.append(rewards(name, int(price)))
+            file1.close()
         self.show_all_Items()
                                          
         
