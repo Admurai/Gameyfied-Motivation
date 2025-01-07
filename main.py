@@ -1,159 +1,165 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QCheckBox, QLabel, QPushButton, QStackedWidget, QMenuBar, QMessageBox
+from PyQt6.QtWidgets import QComboBox,QTabWidget,QApplication,QLineEdit, QMainWindow,QHBoxLayout,QVBoxLayout , QVBoxLayout, QWidget, QCheckBox, QLabel, QPushButton, QStackedWidget, QMenuBar, QMessageBox
+from PyQt6.QtCore import Qt
 
-class TrackerApp(QMainWindow):
+class project:
+    def __init__(self, job, points):
+        self.job = job
+        self.points = points
+        self.completed = False
+    
+    def complete(self):
+        self.completed = True
+    
+    def uncomplete(self):
+        self.completed = False
+
+class bad_habit:
+    def __init__(self, name, points):
+        self.name = name
+        self.points = points
+        self.completed = False
+    
+    def complete(self):
+        self.completed = True
+    
+    def uncomplete(self):
+        self.completed = False
+
+class good_habit:
+    def __init__(self, name, points):
+        self.name = name
+        self.points = points
+        self.completed = False
+    
+    def complete(self):
+        self.completed = True
+    
+    def uncomplete(self):
+        self.completed = False
+
+
+class GUI:
     def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Checkmark Tracker")
+        self.point_count = 0
+        self.projects = []
+        self.bad_habits = []
+        self.good_habits = []
+        self.tabs = QTabWidget()
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.tabs)
+        self.setLayout(self.layout)
+    def setLayout(self, layout):
+        self.layout = layout
 
-        self.points = 0
+    def add_project(self, job, points):
+        self.projects.append(project(job, points))
+    
+    def add_bad_habit(self, name, points):
+        self.bad_habits.append(bad_habit(name, points))
+    
+    def add_good_habit(self, name, points):
+        self.good_habits.append(good_habit(name, points))
+    
+    def complete_project(self, index):
+        self.projects[index].complete()
+    
+    def uncomplete_project(self, index):
+        self.projects[index].uncomplete()
+    
+    def complete_bad_habit(self, index):
+        self.bad_habits[index].complete()
+    
+    def uncomplete_bad_habit(self, index):
+        self.bad_habits[index].uncomplete()
+    
+    def complete_good_habit(self, index):
+        self.good_habits[index].complete()
+    
+    def uncomplete_good_habit(self, index):
+        self.good_habits[index].uncomplete()
+    
+    def get_projects(self):
+        return self.projects
+    
+    def get_bad_habits(self):
+        return self.bad_habits
+    
+    def get_good_habits(self):
+        return self.good_habits
+    
+    def create_main_tab(self):
+        main_tab = QWidget()
+        layout = QVBoxLayout(main_tab)
 
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
+        # Display existing good habits
+        layout.addWidget(QLabel("Good Habits"))
+        for habit in self.good_habits:
+            checkbox = QCheckBox(f"{habit.name} ({habit.points} points)")
+            checkbox.stateChanged.connect(lambda state, h=habit: self.update_points(h, state))
+            layout.addWidget(checkbox)
 
-        self.layout = QVBoxLayout(self.central_widget)
+        # Display existing bad habits
+        layout.addWidget(QLabel("Bad Habits"))
+        for habit in self.bad_habits:
+            checkbox = QCheckBox(f"{habit.name} ({habit.points} points)")
+            checkbox.stateChanged.connect(lambda state, h=habit: self.update_points(h, state))
+            layout.addWidget(checkbox)
 
-        self.stack = QStackedWidget()
-        self.layout.addWidget(self.stack)
+        # Display existing projects
+        layout.addWidget(QLabel("Projects"))
+        for proj in self.projects:
+            checkbox = QCheckBox(f"{proj.name} ({proj.points} points)")
+            checkbox.stateChanged.connect(lambda state, p=proj: self.update_points(p, state))
+            layout.addWidget(checkbox)
 
-        self.create_habits_tab()
-        self.create_projects_tab()
-        self.create_bad_habits_tab()
-        self.create_settings_tab()
+        # Input fields for adding new items
+        input_layout = QHBoxLayout()
+        self.name_input = QLineEdit()
+        self.name_input.setPlaceholderText("Name")
+        self.points_input = QLineEdit()
+        self.points_input.setPlaceholderText("Points")
+        self.type_selector = QComboBox()
+        self.type_selector.addItems(["Good Habit", "Bad Habit", "Project"])
+        add_button = QPushButton("Add")
+        add_button.clicked.connect(self.add_new_item)
 
-        self.create_menu()
+        input_layout.addWidget(self.name_input)
+        input_layout.addWidget(self.points_input)
+        input_layout.addWidget(self.type_selector)
+        input_layout.addWidget(add_button)
 
-    def safe_data(self):
-        with open("data.txt", "w") as file:
-            file.write(str(self.points))
-            file.write("\n")
-            file.write(str(self.habit1_check.isChecked()))
+        layout.addLayout(input_layout)
+        main_tab.setLayout(layout)
+        self.tabs.addTab(main_tab, "Main")
 
-    def create_menu(self):
-        menu_bar = QMenuBar(self)
-        self.setMenuBar(menu_bar)
+    def show(self):
+        self.tabs.show()
+    
 
-        habits_action = menu_bar.addAction("Habits")
-        habits_action.triggered.connect(lambda: self.show_tab(0))
+    def update_points(self, item, state):
+        if state == Qt.Checked:
+            self.point_count += item.points
+        else:
+            self.point_count -= item.points
+        print(f"Current Points: {self.point_count}")
 
-        projects_action = menu_bar.addAction("Projects")
-        projects_action.triggered.connect(lambda: self.show_tab(1))
+    def add_new_item(self):
+        name = self.name_input.text()
+        points = int(self.points_input.text())
+        item_type = self.type_selector.currentText()
 
-        bad_habits_action = menu_bar.addAction("Bad Habits")
-        bad_habits_action.triggered.connect(lambda: self.show_tab(2))
+        if item_type == "Good Habit":
+            self.add_good_habit(name, points)
+        elif item_type == "Bad Habit":
+            self.add_bad_habit(name, points)
+        elif item_type == "Project":
+            self.add_project(name, points)
 
-        settings_action = menu_bar.addAction("Settings")
-        settings_action.triggered.connect(lambda: self.show_tab(3))
-
-    def create_habits_tab(self):
-        habits_tab = QWidget()
-        layout = QVBoxLayout(habits_tab)
-
-        label = QLabel("Habits Tracker")
-        layout.addWidget(label)
-
-        self.habit1_check = QCheckBox("Exercise")
-        self.habit1_check.stateChanged.connect(self.update_points)
-        layout.addWidget(self.habit1_check)
-
-        self.habit2_check = QCheckBox("Meditate")
-        self.habit2_check.stateChanged.connect(self.update_points)
-        layout.addWidget(self.habit2_check)
-
-        self.habit3_check = QCheckBox("Read a book")
-        self.habit3_check.stateChanged.connect(self.update_points)
-        layout.addWidget(self.habit3_check)
-
-        self.stack.addWidget(habits_tab)
-
-    def create_projects_tab(self):
-        projects_tab = QWidget()
-        layout = QVBoxLayout(projects_tab)
-
-        label = QLabel("Projects Tracker")
-        layout.addWidget(label)
-
-        self.project1_check = QCheckBox("Finish Report")
-        self.project1_check.stateChanged.connect(self.update_points)
-        layout.addWidget(self.project1_check)
-
-        self.project2_check = QCheckBox("Complete Presentation")
-        self.project2_check.stateChanged.connect(self.update_points)
-        layout.addWidget(self.project2_check)
-
-        self.stack.addWidget(projects_tab)
-
-    def create_bad_habits_tab(self):
-        bad_habits_tab = QWidget()
-        layout = QVBoxLayout(bad_habits_tab)
-
-        label = QLabel("Bad Habits Tracker")
-        layout.addWidget(label)
-
-        self.bad_habit1_check = QCheckBox("Procrastinate")
-        self.bad_habit1_check.stateChanged.connect(self.update_points)
-        layout.addWidget(self.bad_habit1_check)
-
-        self.bad_habit2_check = QCheckBox("Overeat")
-        self.bad_habit2_check.stateChanged.connect(self.update_points)
-        layout.addWidget(self.bad_habit2_check)
-
-        self.stack.addWidget(bad_habits_tab)
-
-    def create_settings_tab(self):
-        settings_tab = QWidget()
-        layout = QVBoxLayout(settings_tab)
-
-        label = QLabel("Settings")
-        layout.addWidget(label)
-
-        reset_button = QPushButton("Reset Points")
-        reset_button.clicked.connect(self.reset_points)
-        layout.addWidget(reset_button)
-
-        self.stack.addWidget(settings_tab)
-
-    def show_tab(self, index):
-        self.stack.setCurrentIndex(index)
-
-    def update_points(self):
-        self.points = 0
-
-        if self.habit1_check.isChecked():
-            self.points += 10
-
-        if self.habit2_check.isChecked():
-            self.points += 10
-
-        if self.habit3_check.isChecked():
-            self.points += 10
-
-        if self.project1_check.isChecked():
-            self.points += 20
-
-        if self.project2_check.isChecked():
-            self.points += 20
-
-        if self.bad_habit1_check.isChecked():
-            self.points -= 15
-
-        if self.bad_habit2_check.isChecked():
-            self.points -= 15
-
-        QMessageBox.information(self, "Points Updated", f"Current Points: {self.points}")
-
-    def reset_points(self):
-        self.points = 0
-        self.habit1_check.setChecked(False)
-        self.habit2_check.setChecked(False)
-        self.habit3_check.setChecked(False)
-        self.project1_check.setChecked(False)
-        self.project2_check.setChecked(False)
-        self.bad_habit1_check.setChecked(False)
-        self.bad_habit2_check.setChecked(False)
-        QMessageBox.information(self, "Points Reset", "All points have been reset to 0.")
+        self.create_main_tab()  # Refresh the tab to show the new item
 
 if __name__ == "__main__":
     app = QApplication([])
-    tracker_app = TrackerApp()
-    tracker_app.show()
-    app.exec()
+    gui = GUI()
+    gui.create_main_tab()
+    gui.show()
+    
