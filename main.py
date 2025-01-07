@@ -39,6 +39,12 @@ class good_habit:
     def uncomplete(self):
         self.completed = False
 
+class rewards:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+    
+
 
 class GUI:
     def __init__(self):
@@ -46,6 +52,7 @@ class GUI:
         self.projects = []
         self.bad_habits = []
         self.good_habits = []
+        self.rewards = []
 
         self.load_data()
         self.change()
@@ -90,12 +97,15 @@ class GUI:
                     if option == "y":
                         self.show_points()
                     else:
-                        option = input("would u like to close the program ? (y/n)")
+                        option = input("Would u like to open the shop ? (y/n)")
                         if option == "y":
-                            self.save_data()
-                            print("Goodbye")
-                            
+                            self.open_shop()
                         else:
+                            option = input("would u like to close the program ? (y/n)")
+                            if option == "y":
+                                self.save_data()
+                                print("Goodbye")    
+                            else:
                                 self.change()
     
         
@@ -173,7 +183,7 @@ class GUI:
             self.add()
 
     def add_project(self):
-        job = input("Enter the name of the project")
+        job = input("Enter the name of the project:")
         points = int(input("How many points is this project worth ?"))
         self.add_projects(job, points)
         print("Project Added")
@@ -183,7 +193,7 @@ class GUI:
         else:
             self.change()
     def add_bad_habit(self):
-        name = input("Enter the name of the bad habit")
+        name = input("Enter the name of the bad habit:")
         points = int(input("How many points is this bad habit worth(negative) ?"))
         self.add_bad_habits(name, points)
         print("Bad Habit Added")
@@ -193,7 +203,7 @@ class GUI:
         else:
             self.change()
     def add_good_habit(self):
-        name = input("Enter the name of the good habit")
+        name = input("Enter the name of the good habit:")
         points = int(input("How many points is this good habit worth ?"))
         self.add_good_habits(name, points)
         print("Good Habit Added")
@@ -265,42 +275,48 @@ class GUI:
         file1 = open("save.txt", "w")
         file1.write(f"{self.point_count}\n")
         for project in self.projects:
-            print("Projects:",len(self.projects))
+            file1.write(f"Projects:")
             file1.write(f"{project.job} - {project.points} - {project.completed}\n")
         for bad_habit in self.bad_habits:
-            print("Bad Habits",len(self.projects))
+            file1.write(f"Bad Habits:")
             file1.write(f"{bad_habit.name} - {bad_habit.points} - {bad_habit.completed}\n")
         for good_habit in self.good_habits:
-            print("Good Habits:",len(self.projects))
+            file1.write(f"Good Habits:")
             file1.write(f"{good_habit.name} - {good_habit.points} - {good_habit.completed}\n")
+        for reward in self.rewards:
+            file1.write(f"Rewards:")
+            file1.write(f"{reward.name} - {reward.price}\n") 
         file1.close()
-        print("Data Saved")
+        print("Data Saved") 
     
     def load_data(self):
         if os.path.exists("save.txt") and os.path.getsize("save.txt") > 0:
             file1 = open("save.txt", "r")
-            lines = file1.readlines()
+            lines = file1.readlines()          
             self.point_count = int(lines[0])
 
             mode = None
             for line in lines[1:]:
                 line = line.strip()
                 if line.startswith("Projects:"):
-                    mode = "project"
-                    continue
+                    mode = "project"    
+                    line = line.replace("Projects:", "")             
                 elif line.startswith("Bad Habits:"):
-                    mode = "bad_habit"
-                    continue
+                    mode = "bad_habit"   
+                    line = line.replace("Bad Habits:", "")              
                 elif line.startswith("Good Habits:"):
-                    mode = "good_habit"
-                    continue
-
+                    mode = "good_habit"     
+                    line = line.replace("Good Habits:", "")              
+                elif line.startswith("Rewards:"):
+                    mode = "reward"
+                    line = line.replace("Rewards:", "")
+                    
                 if mode == "project":
                     job, points, completed = line.split(" - ")
                     proj = project(job, int(points))
                     if completed == "True":
                         proj.complete()
-                    self.projects.append(proj)
+                    self.projects.append(proj)                   
                 elif mode == "bad_habit":
                     name, points, completed = line.split(" - ")
                     bh = bad_habit(name, int(points))
@@ -309,14 +325,58 @@ class GUI:
                     self.bad_habits.append(bh)
                 elif mode == "good_habit":
                     name, points, completed = line.split(" - ")
-                    gh = good_habit(name, int(points))
+                    gh = good_habit(name, int(points))                   
                     if completed == "True":
                         gh.complete()
                     self.good_habits.append(gh)
+                elif mode == "reward":
+                    name, price = line.split(" - ")
+                    self.rewards.append(rewards(name, int(price)))
+        file1.close()
+        self.show_all_Items()
+                                         
         
 
     def open_shop(self):
         print("Welcome to the shop")
+        print("Here are the rewards")
+        option = input("Would u like to buy any ? (y/n)")
+        if option == "y":
+            self.buy()
+        else:
+            option = input("Would u like to add a reward? (y/n)")
+            if option == "y":
+                self.add_reward()
+            else:
+                self.change()
+        
+    def buy(self):
+        iteration = 1
+        for reward in self.rewards:
+            print(f"{iteration}:  {reward.name} - {reward.price}")
+            iteration+=1
+        option = input("Which Reward would u like to buy ?")
+        if self.point_count >= self.rewards[int(option)-1].price:
+            self.point_count -= self.rewards[int(option)-1].price
+            print("Reward Bought")
+        else:
+            print("Not enough points")
+        option = input("Would u like to buy another reward ? (y/n)")
+        if option == "y":
+            self.buy()
+        else:
+            self.open_shop()
+    
+    def add_reward(self):
+        name = input("Enter the name of the reward")
+        price = int(input("How many points is this reward worth ?"))
+        self.rewards.append(rewards(name, price))
+        print("Reward Added")
+        option = input("Would u like to add another reward ? (y/n)")
+        if option == "y":
+            self.add_reward()
+        else:
+            self.open_shop()
         
 
 
