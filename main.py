@@ -316,7 +316,7 @@ class GUI:
                     elif line.startswith("Good Habits:"):
                         mode = "good_habit" 
                         
-                        line = line.replace("Good Habits:", "").strip() 
+                        line = line.replace("Good Habits:", "").strip()  
                         print(line)           
                     elif line.startswith("Rewards:"):
                         mode = "reward"
@@ -346,9 +346,7 @@ class GUI:
                         self.rewards.append(rewards(name, int(price)))
             file1.close()
         self.show_all_Items()
-                                         
-        
-
+                                             
     def open_shop(self):
         print("Welcome to the shop")
         print("Here are the rewards")
