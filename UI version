@@ -17,7 +17,7 @@ class Project:
 
 
 class BadHabit:
-    def __init__(self, name, points):
+    def __init__(self, name, points):  
         self.name = name
         self.points = points
         self.completed = False
@@ -108,10 +108,10 @@ class GUI(QMainWindow):
 
         self.show_all_items()
 
-    def clear_layout(self, layout):
+    def clear_layout(self, layout, exclude_widget=None):
         while layout.count():
             child = layout.takeAt(0)
-            if child.widget():
+            if child.widget() and child.widget() != exclude_widget:
                 child.widget().deleteLater()
 
     def add_project(self):
@@ -153,7 +153,7 @@ class GUI(QMainWindow):
         self.show_rewards()
 
     def show_projects(self):
-        self.clear_layout(self.projects_layout)
+        self.clear_layout(self.projects_layout, exclude_widget=self.add_project_button)
         self.projects_layout.addWidget(self.add_project_button)
         for project in self.projects:
             layout = QHBoxLayout()
@@ -166,7 +166,7 @@ class GUI(QMainWindow):
             self.projects_layout.addLayout(layout)
 
     def show_bad_habits(self):
-        self.clear_layout(self.bad_habits_layout)
+        self.clear_layout(self.bad_habits_layout, exclude_widget=self.add_bad_habit_button)
         self.bad_habits_layout.addWidget(self.add_bad_habit_button)
         for bad_habit in self.bad_habits:
             layout = QHBoxLayout()
@@ -178,7 +178,7 @@ class GUI(QMainWindow):
                 layout.addWidget(complete_button)
             self.bad_habits_layout.addLayout(layout)
 
-    def show_good_habits(self): 
+    def show_good_habits(self):
         self.clear_layout(self.good_habits_layout, exclude_widget=self.add_good_habit_button)
         self.good_habits_layout.addWidget(self.add_good_habit_button)
         for good_habit in self.good_habits:
@@ -192,7 +192,7 @@ class GUI(QMainWindow):
             self.good_habits_layout.addLayout(layout)
 
     def show_rewards(self):
-        self.clear_layout(self.rewards_layout)
+        self.clear_layout(self.rewards_layout, exclude_widget=self.add_reward_button)
         self.rewards_layout.addWidget(self.add_reward_button)
         for reward in self.rewards:
             layout = QHBoxLayout()
