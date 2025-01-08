@@ -153,6 +153,11 @@ class GUI(QMainWindow):
         self.show_rewards()
 
     def show_projects(self):
+        current_index = self.tab_widget.currentIndex()
+        self.tab_widget.removeTab(self.tab_widget.indexOf(self.projects_tab))
+        self.projects_tab = QWidget()
+        self.projects_layout = QVBoxLayout(self.projects_tab)
+        self.tab_widget.insertTab(0, self.projects_tab, 'Projects')
         self.clear_layout(self.projects_layout, exclude_widget=self.add_project_button)
         self.projects_layout.addWidget(self.add_project_button)
         for project in self.projects:
@@ -164,8 +169,14 @@ class GUI(QMainWindow):
                 complete_button.clicked.connect(lambda _, p=project: self.complete_project(p))
                 layout.addWidget(complete_button)
             self.projects_layout.addLayout(layout)
+        self.tab_widget.setCurrentIndex(current_index)
 
     def show_bad_habits(self):
+        current_index = self.tab_widget.currentIndex()
+        self.tab_widget.removeTab(self.tab_widget.indexOf(self.bad_habits_tab))
+        self.bad_habits_tab = QWidget()
+        self.bad_habits_layout = QVBoxLayout(self.bad_habits_tab)
+        self.tab_widget.insertTab(1, self.bad_habits_tab, 'Bad Habits')
         self.clear_layout(self.bad_habits_layout, exclude_widget=self.add_bad_habit_button)
         self.bad_habits_layout.addWidget(self.add_bad_habit_button)
         for bad_habit in self.bad_habits:
@@ -177,8 +188,14 @@ class GUI(QMainWindow):
                 complete_button.clicked.connect(lambda _, bh=bad_habit: self.complete_bad_habit(bh))
                 layout.addWidget(complete_button)
             self.bad_habits_layout.addLayout(layout)
+        self.tab_widget.setCurrentIndex(current_index)
 
     def show_good_habits(self):
+        current_index = self.tab_widget.currentIndex()
+        self.tab_widget.removeTab(self.tab_widget.indexOf(self.good_habits_tab))
+        self.good_habits_tab = QWidget()
+        self.good_habits_layout = QVBoxLayout(self.good_habits_tab)
+        self.tab_widget.insertTab(2, self.good_habits_tab, 'Good Habits')
         self.clear_layout(self.good_habits_layout, exclude_widget=self.add_good_habit_button)
         self.good_habits_layout.addWidget(self.add_good_habit_button)
         for good_habit in self.good_habits:
@@ -190,9 +207,10 @@ class GUI(QMainWindow):
                 complete_button.clicked.connect(lambda _, gh=good_habit: self.complete_good_habit(gh))
                 layout.addWidget(complete_button)
             self.good_habits_layout.addLayout(layout)
+        self.tab_widget.setCurrentIndex(current_index)
 
     def show_rewards(self):
-        self.clear_layout(self.rewards_layout, exclude_widget=self.add_reward_button)
+        self.clear_layout(self.rewards_layout, exclude_widget=self.add_reward_button) 
         self.rewards_layout.addWidget(self.add_reward_button)
         for reward in self.rewards:
             layout = QHBoxLayout()
@@ -214,7 +232,7 @@ class GUI(QMainWindow):
                 for line in lines[1:]:
                     line = line.strip()
                     if not line:
-                        continue
+                        continue 
 
                     if line.startswith("Projects:"):
                         mode = "project"
@@ -263,7 +281,7 @@ class GUI(QMainWindow):
             for good_habit in self.good_habits:
                 file.write(f"Good Habits:{good_habit.name}-{good_habit.points}-{good_habit.completed}\n")
             for reward in self.rewards:
-                file.write(f"Rewards:{reward.name}-{reward.price}\n")
+                file.write(f"Rewards:{reward.name}-{reward.price}\n")  
         print("Data Saved")
     
     def complete_project(self, project):
@@ -291,7 +309,7 @@ class GUI(QMainWindow):
         if self.point_count >= reward.price:
             self.point_count -= reward.price
             self.points_label.setText(f'Points: {self.point_count}')
-            self.rewards.remove(reward)
+            QMessageBox.information(self, 'Reward Purchased', f'You have purchased: {reward.name}')
             self.show_rewards()
             self.save_data()
         else:
